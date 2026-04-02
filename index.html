@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENT — Institut Universitaire de Technologie Clermont</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a4fd6;
+    --blue-light: #e8eefb;
+    --blue-mid: #3b6bef;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f5f6f8;
+    --white: #ffffff;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --sidebar-w: 240px;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── AUTH ── */
+  #auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8eefb 50%, #f5f6f8 100%);
+  }
+
+  .auth-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(26,79,214,.10);
+    padding: 48px 44px 40px;
+    width: 380px;
+    border: 1px solid var(--border);
+  }
+
+  .auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .auth-logo-icon {
+    width: 40px; height: 40px;
+    background: var(--blue);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 16px;
+  }
+
+  .auth-logo-text { font-size: 13px; color: var(--text-muted); line-height: 1.3; }
+  .auth-logo-text strong { display: block; font-size: 15px; color: var(--text); font-weight: 600; }
+
+  .auth-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .auth-sub { color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .auth-tab {
+    flex: 1; padding: 9px; text-align: center; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--text-muted);
+    background: var(--bg); transition: all .15s;
+  }
+  .auth-tab.active { background: var(--blue); color: white; }
+
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; letter-spacing: .03em; text-transform: uppercase; }
+  input[type=text], input[type=password], input[type=email], input[type=date], select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-family: inherit; font-size: 14px;
+    background: var(--white); color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,79,214,.08); }
+  .form-group { margin-bottom: 16px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 14px; font-weight: 500; transition: all .15s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--blue); color: white; width: 100%; }
+  .btn-primary:hover { background: var(--blue-mid); }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--bg); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover { background: #047857; }
+
+  .auth-error { background: var(--red-light); color: var(--red); padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .auth-admin-link { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); }
+  .auth-admin-link a { color: var(--blue); text-decoration: none; }
+
+  /* ── APP LAYOUT ── */
+  #app { display: none; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .sidebar-logo {
+    width: 34px; height: 34px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+
+  .sidebar-title { font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .sidebar-sub { font-size: 11px; color: var(--text-muted); }
+
+  .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  .nav-section { margin-bottom: 20px; }
+  .nav-section-title { font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; padding: 0 10px; margin-bottom: 4px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 7px; cursor: pointer;
+    font-size: 13.5px; font-weight: 500; color: var(--text-muted);
+    transition: all .12s; margin-bottom: 1px;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px; cursor: pointer;
+    transition: background .12s;
+  }
+  .user-chip:hover { background: var(--bg); }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--blue-light); color: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 500; }
+  .user-role { font-size: 11px; color: var(--text-muted); }
+
+  .main { margin-left: var(--sidebar-w); padding: 28px 32px; min-height: 100vh; }
+
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; }
+  .page-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── CARDS & GRID ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  .stat-card { padding: 18px 20px; }
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 600; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); }
+
+  /* ── PLANNING ── */
+  .planning-grid {
+    display: grid;
+    grid-template-columns: 60px repeat(5, 1fr);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--white);
+  }
+
+  .planning-header {
+    background: var(--bg);
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .time-slot {
+    padding: 8px 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    padding-right: 10px;
+    display: flex; align-items: flex-start;
+  }
+
+  .planning-cell {
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    min-height: 52px;
+    position: relative;
+    padding: 2px;
+  }
+
+  .cours-block {
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .cours-block .cours-mat { font-weight: 600; font-size: 11px; margin-bottom: 2px; }
+  .cours-block .cours-info { font-size: 10px; opacity: .8; }
+
+  /* ── NOTES TABLE ── */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 11px; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+
+  .note-val {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500; font-size: 15px;
+  }
+
+  /* ── ABSENCES ── */
+  .absence-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .absence-row:last-child { border-bottom: none; }
+  .absence-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── PROFIL ── */
+  .profil-header {
+    display: flex; align-items: center; gap: 20px;
+    padding: 24px; background: var(--white);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .profil-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--blue-light); color: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700;
+  }
+  .profil-info h2 { font-size: 20px; font-weight: 600; }
+  .profil-info p { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .info-item { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .info-item:nth-child(odd) { border-right: 1px solid var(--border); }
+  .info-item label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 3px; }
+  .info-item span { font-size: 14px; font-weight: 500; }
+
+  /* ── ADMIN ── */
+  #admin-screen {
+    min-height: 100vh;
+    background: var(--bg);
+    display: none;
+  }
+
+  .admin-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .admin-header h1 { font-size: 22px; font-weight: 600; }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; display: none;
+  }
+  .modal {
+    background: white; border-radius: 14px;
+    padding: 28px; width: 420px;
+    box-shadow: 0 12px 48px rgba(0,0,0,.18);
+  }
+  .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── WEEK NAV ── */
+  .week-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .week-nav .week-label { font-weight: 600; font-size: 15px; flex: 1; }
+  .week-nav button { background: var(--white); border: 1px solid var(--border); border-radius: 7px; padding: 6px 14px; cursor: pointer; font-family: inherit; font-size: 13px; transition: background .12s; }
+  .week-nav button:hover { background: var(--bg); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #111; color: white;
+    padding: 12px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    z-index: 9999; display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+
+  .hidden { display: none !important; }
+
+  /* Moyenne badge color */
+  .note-high { color: var(--green); }
+  .note-mid { color: var(--orange); }
+  .note-low { color: var(--red); }
+
+  @media (max-width: 700px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 16px; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ AUTH ══════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">IUT</div>
+      <div class="auth-logo-text">
+        <strong>IUT Clermont-Ferrand</strong>
+        Espace Numérique de Travail
+      </div>
+    </div>
+    <h2 class="auth-title">Connexion</h2>
+    <p class="auth-sub">Accédez à votre espace étudiant</p>
+
+    <div class="auth-error" id="auth-error">Identifiants incorrects.</div>
+
+    <div class="form-group">
+      <label>Identifiant étudiant</label>
+      <input type="text" id="login-id" placeholder="ex: e21012345" />
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" />
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Se connecter</button>
+    <div class="auth-admin-link">
+      <a href="#" onclick="showAdmin()">⚙ Accès administration</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN ══════════════ -->
+<div id="admin-screen">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <h1>⚙ Administration ENT</h1>
+        <p style="color:var(--text-muted);font-size:13px;margin-top:3px">Gestion des comptes étudiants</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-success btn-sm" onclick="openCreateModal()">+ Créer un compte</button>
+        <button class="btn btn-outline btn-sm" onclick="showAuthScreen()">← Retour</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Identifiant</th>
+            <th>Nom complet</th>
+            <th>Formation</th>
+            <th>Groupe</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">IUT</div>
+      <div>
+        <div class="sidebar-title">IUT Clermont</div>
+        <div class="sidebar-sub">Espace étudiant</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Principal</div>
+        <div class="nav-item active" onclick="showPage('accueil', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Accueil
+        </div>
+        <div class="nav-item" onclick="showPage('planning', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Planning
+        </div>
+        <div class="nav-item" onclick="showPage('notes', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Notes & résultats
+        </div>
+        <div class="nav-item" onclick="showPage('absences', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Absences
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Compte</div>
+        <div class="nav-item" onclick="showPage('profil', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mon profil
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" onclick="doLogout()">
+        <div class="user-avatar" id="sidebar-avatar">E</div>
+        <div>
+          <div class="user-name" id="sidebar-name">—</div>
+          <div class="user-role">Déconnexion →</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE: ACCUEIL -->
+    <div id="page-accueil">
+      <div class="page-header">
+        <h1 id="accueil-titre">Bonjour 👋</h1>
+        <p id="accueil-sous">Tableau de bord — Année universitaire 2024–2025</p>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:16px">
+        <div class="card stat-card">
+          <div class="stat-label">Moyenne générale</div>
+          <div class="stat-value note-high" id="stat-moy">—</div>
+          <div class="stat-sub">Sur 20</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Absences</div>
+          <div class="stat-value" id="stat-abs" style="color:var(--orange)">—</div>
+          <div class="stat-sub">Dont <span id="stat-abs-just">—</span> justifiées</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Matières</div>
+          <div class="stat-value" id="stat-mat" style="color:var(--blue)">—</div>
+          <div class="stat-sub">Ce semestre</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Semestre</div>
+          <div class="stat-value" style="color:var(--text)">S2</div>
+          <div class="stat-sub" id="stat-form">—</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="font-weight:600;margin-bottom:14px;font-size:15px">Cours du jour</div>
+          <div id="cours-du-jour"></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:600;margin-bottom:14px;font-size:15px">Dernières notes</div>
+          <div id="dernieres-notes"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: PLANNING -->
+    <div id="page-planning" class="hidden">
+      <div class="page-header">
+        <h1>Planning</h1>
+        <p>Emploi du temps hebdomadaire</p>
+      </div>
+      <div class="week-nav">
+        <span class="week-label" id="week-label">Semaine du —</span>
+        <button onclick="changeWeek(-1)">◀ Préc.</button>
+        <button onclick="changeWeek(0)">Aujourd'hui</button>
+        <button onclick="changeWeek(1)">Suiv. ▶</button>
+      </div>
+      <div id="planning-container"></div>
+    </div>
+
+    <!-- PAGE: NOTES -->
+    <div id="page-notes" class="hidden">
+      <div class="page-header">
+        <h1>Notes & résultats</h1>
+        <p>Semestre 2 — 2024–2025</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:16px" id="notes-stats-cards"></div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Matière</th>
+              <th>Enseignant</th>
+              <th>DS1</th>
+              <th>DS2</th>
+              <th>TP/CC</th>
+              <th>Moyenne</th>
+              <th>ECTS</th>
+            </tr>
+          </thead>
+          <tbody id="notes-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE: ABSENCES -->
+    <div id="page-absences" class="hidden">
+      <div class="page-header">
+        <h1>Absences</h1>
+        <p>Suivi des présences — Semestre 2</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:16px">
+        <div class="card stat-card">
+          <div class="stat-label">Total absences</div>
+          <div class="stat-value" id="abs-total" style="color:var(--red)">—</div>
+          <div class="stat-sub">Heures</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Justifiées</div>
+          <div class="stat-value note-high" id="abs-just">—</div>
+          <div class="stat-sub">Heures</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Non justifiées</div>
+          <div class="stat-value" id="abs-njust" style="color:var(--orange)">—</div>
+          <div class="stat-sub">Heures</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:600;margin-bottom:16px;font-size:15px">Historique des absences</div>
+        <div id="absences-list"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: PROFIL -->
+    <div id="page-profil" class="hidden">
+      <div class="page-header">
+        <h1>Mon profil</h1>
+        <p>Informations personnelles et scolarité</p>
+      </div>
+
+      <div class="profil-header">
+        <div class="profil-avatar" id="profil-avatar">E</div>
+        <div class="profil-info">
+          <h2 id="profil-nom">—</h2>
+          <p id="profil-desc">—</p>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <span class="badge badge-blue" id="profil-formation">—</span>
+            <span class="badge badge-green">Inscrit·e</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="info-grid" id="profil-infos"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════ MODAL CRÉER COMPTE ══════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2>Créer un compte étudiant</h2>
+    <div class="form-group">
+      <label>Prénom</label>
+      <input type="text" id="f-prenom" placeholder="Marie" />
+    </div>
+    <div class="form-group">
+      <label>Nom</label>
+      <input type="text" id="f-nom" placeholder="Dupont" />
+    </div>
+    <div class="form-group">
+      <label>Date de naissance</label>
+      <input type="date" id="f-dob" />
+    </div>
+    <div class="form-group">
+      <label>Formation</label>
+      <select id="f-formation">
+        <option>BUT Informatique</option>
+        <option>BUT Réseaux & Télécoms</option>
+        <option>BUT Gestion des Entreprises</option>
+        <option>BUT MMI</option>
+        <option>BUT GEA</option>
+        <option>DUT GEII</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Groupe</label>
+      <select id="f-groupe">
+        <option>A1</option><option>A2</option><option>B1</option><option>B2</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="f-pwd" placeholder="••••••••" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-success" onclick="createAccount()">Créer le compte</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+
+const MATIERES_PAR_FORMATION = {
+  "BUT Informatique": [
+    {nom:"Algorithmique & Prog.", code:"AP", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"M. Blanchard", salle:"B201", ects:6},
+    {nom:"Développement Web", code:"DW", couleur:"#dcfce7", couleurText:"#15803d", prof:"Mme Fontaine", salle:"Info3", ects:5},
+    {nom:"Bases de données", code:"BD", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Renaud", salle:"B105", ects:4},
+    {nom:"Systèmes & Réseaux", code:"SR", couleur:"#fce7f3", couleurText:"#be185d", prof:"M. Morel", salle:"B302", ects:4},
+    {nom:"Mathématiques", code:"MA", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"Mme Leclerc", salle:"A101", ects:4},
+    {nom:"Communication", code:"CO", couleur:"#ffedd5", couleurText:"#c2410c", prof:"Mme Petit", salle:"A203", ects:3},
+  ],
+  "BUT Réseaux & Télécoms": [
+    {nom:"Architecture Réseaux", code:"AR", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"M. Simon", salle:"R201", ects:6},
+    {nom:"Protocoles Internet", code:"PI", couleur:"#dcfce7", couleurText:"#15803d", prof:"Mme Gauthier", salle:"R102", ects:5},
+    {nom:"Sécurité Informatique", code:"SI", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Bernard", salle:"R301", ects:4},
+    {nom:"Systèmes Linux", code:"SL", couleur:"#fce7f3", couleurText:"#be185d", prof:"M. Duval", salle:"Info1", ects:4},
+    {nom:"Mathématiques", code:"MA", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"Mme Perrin", salle:"A101", ects:4},
+    {nom:"Anglais Technique", code:"AT", couleur:"#ffedd5", couleurText:"#c2410c", prof:"Mme Clark", salle:"A301", ects:3},
+  ],
+  "BUT Gestion des Entreprises": [
+    {nom:"Management", code:"MG", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"M. Lebrun", salle:"G101", ects:6},
+    {nom:"Comptabilité", code:"CP", couleur:"#dcfce7", couleurText:"#15803d", prof:"Mme Rousseau", salle:"G202", ects:5},
+    {nom:"Marketing", code:"MK", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Girard", salle:"G301", ects:4},
+    {nom:"Droit des affaires", code:"DA", couleur:"#fce7f3", couleurText:"#be185d", prof:"Mme Nguyen", salle:"G103", ects:4},
+    {nom:"Statistiques", code:"ST", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"M. Vidal", salle:"A201", ects:4},
+    {nom:"Communication prof.", code:"CO", couleur:"#ffedd5", couleurText:"#c2410c", prof:"Mme Martin", salle:"A102", ects:3},
+  ],
+  "BUT MMI": [
+    {nom:"Design Graphique", code:"DG", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"Mme Leblanc", salle:"M201", ects:6},
+    {nom:"Développement Web", code:"DW", couleur:"#dcfce7", couleurText:"#15803d", prof:"M. Charpentier", salle:"Info2", ects:5},
+    {nom:"Audiovisuel", code:"AV", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Faure", salle:"M302", ects:4},
+    {nom:"UX / UI Design", code:"UX", couleur:"#fce7f3", couleurText:"#be185d", prof:"Mme Henry", salle:"M101", ects:4},
+    {nom:"Gestion de projet", code:"GP", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"M. Barbier", salle:"G201", ects:4},
+    {nom:"Anglais", code:"AN", couleur:"#ffedd5", couleurText:"#c2410c", prof:"Mme Wilson", salle:"A301", ects:3},
+  ],
+  "BUT GEA": [
+    {nom:"Gestion Financière", code:"GF", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"M. Clement", salle:"G102", ects:6},
+    {nom:"Ressources Humaines", code:"RH", couleur:"#dcfce7", couleurText:"#15803d", prof:"Mme Aubert", salle:"G203", ects:5},
+    {nom:"Fiscalité", code:"FI", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Gros", salle:"G301", ects:4},
+    {nom:"Droit social", code:"DS", couleur:"#fce7f3", couleurText:"#be185d", prof:"Mme Chevalier", salle:"G104", ects:4},
+    {nom:"Statistiques", code:"ST", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"M. Picard", salle:"A201", ects:4},
+    {nom:"Anglais professionnel", code:"AP", couleur:"#ffedd5", couleurText:"#c2410c", prof:"M. Brown", salle:"A302", ects:3},
+  ],
+  "DUT GEII": [
+    {nom:"Électronique", code:"EL", couleur:"#dbeafe", couleurText:"#1d4ed8", prof:"M. Dubois", salle:"T101", ects:6},
+    {nom:"Automatique", code:"AU", couleur:"#dcfce7", couleurText:"#15803d", prof:"Mme Tessier", salle:"T201", ects:5},
+    {nom:"Informatique industrielle", code:"II", couleur:"#fef9c3", couleurText:"#a16207", prof:"M. Bouchard", salle:"Info4", ects:4},
+    {nom:"Mathématiques", code:"MA", couleur:"#fce7f3", couleurText:"#be185d", prof:"M. Lecomte", salle:"A101", ects:4},
+    {nom:"Physique", code:"PH", couleur:"#ede9fe", couleurText:"#6d28d9", prof:"Mme Moreau", salle:"T302", ects:4},
+    {nom:"Anglais technique", code:"AT", couleur:"#ffedd5", couleurText:"#c2410c", prof:"M. Taylor", salle:"A303", ects:3},
+  ]
+};
+
+const JOURS = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi"];
+const HORAIRES = ["08h00","08h45","09h30","10h15","11h00","11h45","13h30","14h15","15h00","15h45","16h30","17h15"];
+
+// Seed aléatoire basée sur une chaîne
+function seededRand(seed) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+  }
+  return function() {
+    h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+
+function genNote(rand) {
+  const base = 8 + rand() * 10;
+  return Math.round(base * 10) / 10;
+}
+
+function genAbsences(seed) {
+  const rand = seededRand(seed + "_abs");
+  const total = Math.floor(rand() * 8) + 1;
+  const abs = [];
+  const moisDispo = ["Janvier","Février","Mars","Avril","Mai"];
+  const matieres_keys = Object.keys(MATIERES_PAR_FORMATION);
+  for (let i = 0; i < total; i++) {
+    const duree = (Math.floor(rand() * 3) + 1) * 1.5;
+    const just = rand() > 0.45;
+    const mois = moisDispo[Math.floor(rand() * moisDispo.length)];
+    const jour = Math.floor(rand() * 28) + 1;
+    abs.push({
+      date: `${String(jour).padStart(2,'0')} ${mois} 2025`,
+      duree: duree,
+      justifiee: just,
+      motif: just ? (rand()>0.5?"Certificat médical":"Convocation officielle") : "—"
+    });
+  }
+  return abs;
+}
+
+function genPlanning(seed, formation) {
+  const rand = seededRand(seed + "_planning");
+  const matieres = MATIERES_PAR_FORMATION[formation] || MATIERES_PAR_FORMATION["BUT Informatique"];
+  const planning = {}; // [jour][slot] = cours
+  const slots = [0,1,2,3,4,5,6,7,8,9,10,11];
+
+  JOURS.forEach((jour, ji) => {
+    planning[jour] = {};
+    const coursJour = Math.floor(rand() * 3) + 2;
+    const slotsJour = [...slots].sort(() => rand() - 0.5).slice(0, coursJour);
+    slotsJour.forEach(slot => {
+      const mat = matieres[Math.floor(rand() * matieres.length)];
+      planning[jour][slot] = mat;
+    });
+  });
+  return planning;
+}
+
+// ══════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════
+
+function getAccounts() {
+  return JSON.parse(localStorage.getItem('ent_accounts') || '[]');
+}
+function saveAccounts(arr) {
+  localStorage.setItem('ent_accounts', JSON.stringify(arr));
+}
+
+let currentUser = null;
+let currentWeekOffset = 0;
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'none';
+}
+
+function showAdmin() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  renderAdminTable();
+}
+
+function doLogin() {
+  const id = document.getElementById('login-id').value.trim().toLowerCase();
+  const pwd = document.getElementById('login-pwd').value;
+  const accounts = getAccounts();
+  const user = accounts.find(a => a.id === id && a.pwd === pwd);
+  const err = document.getElementById('auth-error');
+  if (!user) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadUserApp();
+  showPage('accueil');
+}
+
+function doLogout() {
+  currentUser = null;
+  showAuthScreen();
+}
+
+// ══════════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════════
+
+function renderAdminTable() {
+  const accounts = getAccounts();
+  const tbody = document.getElementById('admin-table-body');
+  if (!accounts.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Aucun compte créé</td></tr>';
+    return;
+  }
+  tbody.innerHTML = accounts.map(a => `
+    <tr>
+      <td><span style="font-family:'DM Mono',monospace;font-size:13px">${a.id}</span></td>
+      <td><strong>${a.prenom} ${a.nom}</strong></td>
+      <td>${a.formation}</td>
+      <td><span class="badge badge-blue">${a.groupe}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="loginAs('${a.id}')">Se connecter</button>
+        <button class="btn btn-danger btn-sm" style="margin-left:6px" onclick="deleteAccount('${a.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function loginAs(id) {
+  const accounts = getAccounts();
+  const user = accounts.find(a => a.id === id);
+  if (!user) return;
+  currentUser = user;
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadUserApp();
+  showPage('accueil');
+}
+
+function deleteAccount(id) {
+  if (!confirm('Supprimer ce compte ?')) return;
+  let accounts = getAccounts().filter(a => a.id !== id);
+  saveAccounts(accounts);
+  renderAdminTable();
+  toast('Compte supprimé');
+}
+
+function openCreateModal() {
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+function createAccount() {
+  const prenom = document.getElementById('f-prenom').value.trim();
+  const nom = document.getElementById('f-nom').value.trim();
+  const dob = document.getElementById('f-dob').value;
+  const formation = document.getElementById('f-formation').value;
+  const groupe = document.getElementById('f-groupe').value;
+  const pwd = document.getElementById('f-pwd').value;
+
+  if (!prenom || !nom || !dob || !pwd) { alert('Tous les champs sont obligatoires'); return; }
+
+  const accounts = getAccounts();
+  // Génère un ID étudiant
+  const year = new Date().getFullYear().toString().slice(2);
+  let num = String(Math.floor(10000 + accounts.length * 137 + Math.random() * 1000)).slice(0,5);
+  const id = `e${year}${num}`;
+
+  const seed = id + nom.toLowerCase();
+  const matieres = MATIERES_PAR_FORMATION[formation];
+
+  // Génère les notes (fixes, basées sur seed)
+  const rand = seededRand(seed + "_notes");
+  const notes = matieres.map(mat => ({
+    mat: mat.nom, code: mat.code, prof: mat.prof, ects: mat.ects,
+    ds1: genNote(rand), ds2: genNote(rand), tp: genNote(rand)
+  }));
+
+  const account = {
+    id, prenom, nom, dob, formation, groupe, pwd, seed,
+    notes,
+    absences: genAbsences(seed),
+    planning: genPlanning(seed, formation),
+    adresse: `${Math.floor(rand()*90+10)} rue ${["des Lilas","Victor Hugo","Jean Moulin","de la Paix","du Général de Gaulle"][Math.floor(rand()*5)]}, Clermont-Ferrand`,
+    tel: `06 ${[...Array(4)].map(()=>String(Math.floor(rand()*90+10)).padStart(2,'0')).join(' ')}`,
+    email: `${prenom.toLowerCase()}.${nom.toLowerCase()}@etud.iut-clermont.fr`,
+    num_etudiant: id.toUpperCase(),
+    annee: "2ème année",
+  };
+
+  accounts.push(account);
+  saveAccounts(accounts);
+  closeModal();
+  renderAdminTable();
+  toast(`✓ Compte créé — Identifiant : ${id}`);
+
+  // Reset fields
+  ['f-prenom','f-nom','f-dob','f-pwd'].forEach(f => document.getElementById(f).value = '');
+}
+
+// ══════════════════════════════════════════════
+// APP
+// ══════════════════════════════════════════════
+
+function loadUserApp() {
+  const u = currentUser;
+  // Sidebar
+  const initiales = (u.prenom[0] + u.nom[0]).toUpperCase();
+  document.getElementById('sidebar-avatar').textContent = initiales;
+  document.getElementById('sidebar-name').textContent = u.prenom + ' ' + u.nom;
+
+  // Accueil
+  document.getElementById('accueil-titre').textContent = `Bonjour, ${u.prenom} 👋`;
+  document.getElementById('accueil-sous').textContent = `${u.formation} — Groupe ${u.groupe} — Année universitaire 2024–2025`;
+
+  // Stats
+  const moy = moyenneGenerale(u.notes);
+  document.getElementById('stat-moy').textContent = moy.toFixed(2);
+  document.getElementById('stat-moy').className = 'stat-value ' + noteClass(moy);
+
+  const totalAbs = u.absences.reduce((s,a)=>s+a.duree, 0);
+  const justAbs = u.absences.filter(a=>a.justifiee).reduce((s,a)=>s+a.duree, 0);
+  document.getElementById('stat-abs').textContent = totalAbs + 'h';
+  document.getElementById('stat-abs-just').textContent = justAbs + 'h';
+  document.getElementById('stat-mat').textContent = u.notes.length;
+  document.getElementById('stat-form').textContent = u.formation;
+
+  // Cours du jour
+  const today = new Date();
+  const jourIdx = today.getDay() === 0 ? 4 : Math.min(today.getDay()-1, 4);
+  const jourName = JOURS[jourIdx];
+  const planning = u.planning;
+  const coursAujourdhui = planning[jourName] ? Object.values(planning[jourName]) : [];
+  const cdj = document.getElementById('cours-du-jour');
+  if (!coursAujourdhui.length) {
+    cdj.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Aucun cours aujourd\'hui</p>';
+  } else {
+    const uniques = [...new Map(coursAujourdhui.map(c=>[c.code,c])).values()];
+    cdj.innerHTML = uniques.map(c => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:8px;background:${c.couleur};color:${c.couleurText};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">${c.code}</div>
+        <div>
+          <div style="font-weight:500;font-size:13px">${c.nom}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${c.prof} · Salle ${c.salle}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Dernières notes
+  const dn = document.getElementById('dernieres-notes');
+  const notesRecentes = [...u.notes].slice(0,4);
+  dn.innerHTML = notesRecentes.map(n => {
+    const m = notesMoy(n);
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500">${n.mat}</div>
+        <div class="note-val ${noteClass(m)}">${m.toFixed(1)}</div>
+      </div>`;
+  }).join('');
+
+  // Planning
+  renderPlanning();
+  renderNotes();
+  renderAbsences();
+  renderProfil();
+}
+
+function moyenneGenerale(notes) {
+  const total = notes.reduce((s,n) => s + notesMoy(n) * n.ects, 0);
+  const ects = notes.reduce((s,n) => s + n.ects, 0);
+  return total / ects;
+}
+
+function notesMoy(n) {
+  return (n.ds1 * 0.35 + n.ds2 * 0.35 + n.tp * 0.30);
+}
+
+function noteClass(v) {
+  if (v >= 14) return 'note-high';
+  if (v >= 10) return 'note-mid';
+  return 'note-low';
+}
+
+// ── PLANNING ──
+function renderPlanning() {
+  const u = currentUser;
+  const today = new Date();
+  const day = today.getDay();
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(today.setDate(diff + currentWeekOffset * 7));
+  const fmt = d => d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'});
+
+  document.getElementById('week-label').textContent =
+    `Semaine du ${fmt(monday)} — ${fmt(new Date(monday.getTime() + 4*86400000))}`;
+
+  const container = document.getElementById('planning-container');
+
+  let html = `<div class="planning-grid">`;
+  // Headers
+  html += `<div class="planning-header" style="grid-column:1">Heure</div>`;
+  JOURS.forEach((j, ji) => {
+    const d = new Date(monday.getTime() + ji*86400000);
+    html += `<div class="planning-header">${j}<br><span style="font-weight:400;font-size:10px">${fmt(d)}</span></div>`;
+  });
+
+  // Rows
+  HORAIRES.forEach((h, hi) => {
+    html += `<div class="time-slot">${h}</div>`;
+    JOURS.forEach(jour => {
+      const seed = u.seed + "_w" + currentWeekOffset;
+      const planning = u.planning; // Always same courses, just same weekly
+      const cours = planning[jour]?.[hi];
+      if (cours) {
+        html += `<div class="planning-cell">
+          <div class="cours-block" style="background:${cours.couleur};color:${cours.couleurText}">
+            <div class="cours-mat">${cours.code}</div>
+            <div class="cours-info">${cours.salle}</div>
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="planning-cell"></div>`;
+      }
+    });
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function changeWeek(dir) {
+  if (dir === 0) currentWeekOffset = 0;
+  else currentWeekOffset += dir;
+  renderPlanning();
+}
+
+// ── NOTES ──
+function renderNotes() {
+  const u = currentUser;
+  const moy = moyenneGenerale(u.notes);
+
+  document.getElementById('notes-stats-cards').innerHTML = `
+    <div class="card stat-card">
+      <div class="stat-label">Moyenne générale</div>
+      <div class="stat-value ${noteClass(moy)}">${moy.toFixed(2)}</div>
+      <div class="stat-sub">Sur 20</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">Crédits ECTS</div>
+      <div class="stat-value" style="color:var(--blue)">${u.notes.reduce((s,n)=>s+n.ects,0)}</div>
+      <div class="stat-sub">Ce semestre</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">Mention</div>
+      <div class="stat-value" style="font-size:18px;${moy>=16?'color:var(--blue)':moy>=14?'color:var(--green)':moy>=12?'color:var(--orange)':'color:var(--red)'}">
+        ${moy>=16?'Très bien':moy>=14?'Bien':moy>=12?'Assez bien':moy>=10?'Passable':'Insuffisant'}
+      </div>
+      <div class="stat-sub">Semestre 2</div>
+    </div>
+  `;
+
+  document.getElementById('notes-table').innerHTML = u.notes.map(n => {
+    const m = notesMoy(n);
+    return `<tr>
+      <td><strong>${n.mat}</strong></td>
+      <td style="color:var(--text-muted);font-size:13px">${n.prof}</td>
+      <td><span class="note-val ${noteClass(n.ds1)}">${n.ds1}</span></td>
+      <td><span class="note-val ${noteClass(n.ds2)}">${n.ds2}</span></td>
+      <td><span class="note-val ${noteClass(n.tp)}">${n.tp}</span></td>
+      <td><span class="note-val ${noteClass(m)}" style="font-size:16px;font-weight:700">${m.toFixed(2)}</span></td>
+      <td><span class="badge badge-blue">${n.ects}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ABSENCES ──
+function renderAbsences() {
+  const u = currentUser;
+  const total = u.absences.reduce((s,a)=>s+a.duree,0);
+  const just = u.absences.filter(a=>a.justifiee).reduce((s,a)=>s+a.duree,0);
+  document.getElementById('abs-total').textContent = total + 'h';
+  document.getElementById('abs-just').textContent = just + 'h';
+  document.getElementById('abs-njust').textContent = (total - just) + 'h';
+
+  const matieres = MATIERES_PAR_FORMATION[u.formation] || [];
+  const rand = seededRand(u.seed + "_absmat");
+
+  document.getElementById('absences-list').innerHTML = u.absences.length ?
+    u.absences.map(a => {
+      const mat = matieres[Math.floor(rand() * matieres.length)];
+      return `<div class="absence-row">
+        <div class="absence-dot" style="background:${a.justifiee?'var(--green)':'var(--red)'}"></div>
+        <div style="flex:1">
+          <div style="font-weight:500;font-size:13.5px">${mat?.nom || 'Cours'}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${a.date} · ${a.duree}h · ${a.motif !== '—' ? a.motif : 'Non justifiée'}</div>
+        </div>
+        <span class="badge ${a.justifiee?'badge-green':'badge-red'}">${a.justifiee?'Justifiée':'Non justifiée'}</span>
+      </div>`;
+    }).join('') :
+    '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Aucune absence enregistrée</p>';
+}
+
+// ── PROFIL ──
+function renderProfil() {
+  const u = currentUser;
+  const initiales = (u.prenom[0] + u.nom[0]).toUpperCase();
+  document.getElementById('profil-avatar').textContent = initiales;
+  document.getElementById('profil-nom').textContent = u.prenom + ' ' + u.nom;
+  document.getElementById('profil-desc').textContent = `${u.formation} · Groupe ${u.groupe} · ${u.annee}`;
+  document.getElementById('profil-formation').textContent = u.formation;
+
+  const dob = new Date(u.dob);
+  const age = new Date().getFullYear() - dob.getFullYear();
+
+  document.getElementById('profil-infos').innerHTML = [
+    ['N° étudiant', u.num_etudiant],
+    ['Email institutionnel', u.email],
+    ['Date de naissance', dob.toLocaleDateString('fr-FR')],
+    ['Âge', age + ' ans'],
+    ['Téléphone', u.tel],
+    ['Adresse', u.adresse],
+    ['Formation', u.formation],
+    ['Groupe', u.groupe],
+    ['Année', u.annee],
+    ['Établissement', 'IUT Clermont-Ferrand'],
+    ['Site', 'Clermont-Ferrand — Campus des Cézeaux'],
+    ['Année universitaire', '2024–2025'],
+  ].map(([k,v]) => `
+    <div class="info-item">
+      <label>${k}</label>
+      <span>${v}</span>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+
+function showPage(name, navEl) {
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+  document.getElementById('page-' + name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(i => {
+      if (i.getAttribute('onclick')?.includes(`'${name}'`)) i.classList.add('active');
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── Entrée par Entrée (enter key) ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('auth-screen').style.display !== 'none') doLogin();
+});
+
+// ── Init ──
+showAuthScreen();
+</script>
+</body>
+</html>
